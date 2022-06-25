@@ -79,3 +79,9 @@ Run as follows:
 Note the input and output directories are mandatory as you'd expect, not
 options as this suggests.  (Why not standard `bcl-convert INDIR OUTDIR`?)
 
+Some documentation for bcl-convert can be found in the
+[User Guide](https://support-docs.illumina.com/SW/BCL_Convert/Content/SW/FrontPages/BCL_Convert.htm),
+the [update notes](https://support.illumina.com/bulletins/2020/10/upgrading-from-bcl2fastq-to-bcl-convert.html),
+and the [compatibility sheet](https://support.illumina.com/sequencing/sequencing_software/bcl-convert/compatibility.html),
+but it needs some work.
+
