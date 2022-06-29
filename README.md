@@ -4,33 +4,8 @@ This repository has instructions to generate a .deb file containing the
 Illumina `bcl-convert` utility, for convenient installation on Debian and
 Ubuntu systems.
 
-> *Note* BCL-Convert 3.10 introduced a regression, namely erroring out when
-> two of your i7 or i5 indices differ 2nt or less.  The only workaround is
-> to set `BarcodeMismatchesIndex1,0` and `BarcodeMismatchesIndex2,0` in the
-> sample sheet, but this then discards every read that does not have two
-> perfectly matching indices.
->
-> The flawed logic behind this appears to be that, under the default allowed
-> mismatch (1nt), if you use barcodes `AAAA` and `AAGG` (different by 2nt),
-> `bcl-convert` should refuse to work because there are possible index reads
-> (in fact, precisely two: `AAAG` and `AAGA`) that are equidistant from
-> either barcode.
->
-> Huh, so what's the problem?  Just throw them in the `Undetermined` bin
-> where they belong (if they're even encountered).  Of the other 254 possible
-> reads, 240 are more than 1nt away from both (hence irrelevant), and the
-> remaining 14 are perfectly assignable because they are 2nt from one barcode,
-> but 0 or 1 from the other.
->
-> With 8nt barcodes, for those 2 rightly ambiguous ones, you're needlessly
-> discarding another 38 valid reads; with 10nt barcodes, 50.  All assuming
-> that you were willing to accept a 1nt mismatch in your index reads (which
-> you did because you set `BarcodeMismatchesIndex` to 1).
->
-> The bug appears to have been introduced with the new default of having the
-> mismatch threshold apply "or-or" across the i7 and i5 reads: reject when
-> _either_ exceeds it, whereas previously this happened only when _both_ did.
-> That change is fine, it's the added erroring out that is the issue.
+**Note** see the bottom of this document for the issue with bcl-convert 3.10,
+and why you may want to stay on 3.9.2.
 
 
 ## Introduction
@@ -113,4 +88,35 @@ is perfectly devoid of information, but some documentation for bcl-convert can b
 and the [compatibility sheet](https://support.illumina.com/sequencing/sequencing_software/bcl-convert/compatibility.html),
 found [hidden in the bottom drawer of a locked filing cabinet stuck in a disused lavatory with a sign on the door saying
 "Beware of the Leopard"](http://www.goodreads.com/quotes/40705-but-the-plans-were-on-display-on-display-i-eventually).
+
+
+#### Issue with bcl-convert 3.10
+
+BCL-Convert 3.10 introduced a regression, namely erroring out when two of
+your i7 or i5 indices differ 2nt or less.  The only workaround is to set
+`BarcodeMismatchesIndex1,0` and `BarcodeMismatchesIndex2,0` in the sample
+sheet, but this then discards every read that does not have two perfectly
+matching indices.
+
+The flawed logic behind this appears to be that, under the default allowed
+mismatch (1nt), if you use barcodes `AAAA` and `AAGG` (different by 2nt),
+`bcl-convert` should refuse to work because there are possible index reads
+(in fact, precisely two: `AAAG` and `AAGA`) that are equidistant from
+either barcode.
+
+Huh, so what's the problem?  Just throw them in the `Undetermined` bin
+where they belong (if they're even encountered).  Of the other 254 possible
+reads, 240 are more than 1nt away from both (hence irrelevant), and the
+remaining 14 are perfectly assignable because they are 2nt from one barcode,
+but 0 or 1 from the other.
+
+With 8nt barcodes, for those 2 rightly ambiguous ones, you're needlessly
+discarding another 38 valid reads; with 10nt barcodes, 50.  All assuming
+that you were willing to accept a 1nt mismatch in your index reads (which
+you did because you set `BarcodeMismatchesIndex` to 1).
+
+The bug appears to have been introduced with the new default of having the
+mismatch threshold apply "or-or" across the i7 and i5 reads: reject when
+_either_ exceeds it, whereas previously this happened only when _both_ did.
+That change is fine, it's the added erroring out that is the issue.
 
